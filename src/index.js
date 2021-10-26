@@ -3,10 +3,16 @@ import ReactDOM from 'react-dom';
 import './index.css';
 import App from './App';
 import reportWebVitals from './reportWebVitals';
+import MqttContextProvider from './context/mqttContext'
+import StorageContextProvider from './context/storageContext'
 
 ReactDOM.render(
   <React.StrictMode>
-    <App />
+    <StorageContextProvider>
+      <MqttContextProvider>
+        <App />
+      </MqttContextProvider>
+    </StorageContextProvider>
   </React.StrictMode>,
   document.getElementById('root')
 );
