@@ -54,6 +54,15 @@ export default function StorageContextProvider(props) {
         return devices;
     }
 
+    function findDevice(esp_id) {
+        const devcs = getDevices();
+        const devcIndex = devcs.findIndex(devc => devc.esp_id === esp_id);
+
+        if (devcIndex >= 0)
+            return devcs[devcIndex];
+        return -1;
+    }
+
     function removeDevice(esp_id) {
         const deviceIndex = devices.findIndex((device) => device.esp_id === esp_id);
 
@@ -65,7 +74,7 @@ export default function StorageContextProvider(props) {
     }
 
     return (
-        <StorageContext.Provider value={{ devices, getDevices, addDevice, updateDevice, updateDeviceTime, removeDevice }}>
+        <StorageContext.Provider value={{ devices, findDevice, getDevices, addDevice, updateDevice, updateDeviceTime, removeDevice }}>
             {props.children}
         </StorageContext.Provider>
     )

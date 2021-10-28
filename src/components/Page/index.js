@@ -7,6 +7,10 @@ import Device from '../../models/device';
 import Sidenav from '../Sidenav';
 import Modal from '../Modal';
 import Box from '../Box';
+import Input from '../Input';
+import Select from '../Select';
+import Checkbox from '../Checkbox';
+import places from '../../config/places.json';
 import './index.css';
 import Button from '../Button';
 
@@ -14,9 +18,19 @@ export default function Page() {
     const {publishMessage, subscribe} = useContext(MqttContext);
     const [alarmState, setAlarmState] = useState(false);
     const [newDevices, setNewDevices] = useState(false);
-    const {getDevices, updateDevice} = useContext(StorageContext);
+    const [configDeviceModal, setconfigDeviceModal] = useState(false);
+    const {getDevices, updateDevice, findDevice} = useContext(StorageContext);
     const [availableDevices, setAvailableDevices] = useState([]);
     const location = useLocation();
+
+    const [selectedDevice, setSelectedDevice] = useState(null);
+    const [inputName, setInputName] = useState("");
+    const [isDimmable, setIsDimmable] = useState(false);
+    const [outputName, setOutputName] = useState("");
+    const [startsAlarm, setStartsAlarm] = useState(false);
+    const [selectedPlace, setSelectedPlace] = useState(places[0].code);
+
+    const [error, setError] = useState("");
   
     useEffect(() => {
         let tmp = localStorage.getItem('alarmState');
@@ -29,38 +43,63 @@ export default function Page() {
     }, [])
 
     useEffect(() => {
-      const devices = getDevices();
-      const available = devices.filter(device => !device.place);
-      setAvailableDevices(available);
+      if (newDevices) {
+        const devices = getDevices();
+        const available = devices.filter(device => !device.place);
+        setAvailableDevices(available);
+      }
     }, [newDevices])
 
     function handleAlarmButton() {
       localStorage.setItem('alarmState', !alarmState);
       setAlarmState(!alarmState);
     }
-  
-    function config() {
-      const mqttBody = new MqttBody('config', 'quarto', undefined);
-  
-      console.log(mqttBody.getBody())
-      console.log(JSON.stringify(mqttBody.getBody()))
-  
-      let device = getDevices()[0];
-  
+
+    function handleDeviceButton(esp_id) {
+      setNewDevices(false);
+      setconfigDeviceModal(true);
+      setSelectedDevice(esp_id);
+    }
+
+    function closeConfig() {
+      setInputName("");
+      setIsDimmable(false);
+      setOutputName("");
+      setStartsAlarm(false);
+      setSelectedPlace(places[0].code);
+      setError("");
+      setSelectedDevice(null);
+      setconfigDeviceModal(false);
+    }
+
+    function configDevice() {
+      if (!inputName.length || !outputName.length) {
+        setError("Preencha todos os campos!");
+        return;
+      }
+      const mqttBody = new MqttBody('config', selectedPlace, undefined);
+
+      let device = findDevice(selectedDevice);
+
+      if (device < 0) {
+        setError("Erro ao configurar dispositivo!");
+        return;
+      }
+
       device = Object.assign(new Device(), device);
-  
+
       device.updateDevice({
-        place: "quarto",
-        input_name: "botao",
-        has_alarm: false,
-        output_name: "led",
-        is_dimmable: true
-      });
-  
+        place: selectedPlace,
+        input_name: inputName,
+        has_alarm: startsAlarm,
+        output_name: outputName,
+        is_dimmable: isDimmable
+      })
+
       updateDevice(device);
-  
-      publishMessage('fse2021/0461/dispositivos/' + device.esp_id, JSON.stringify(mqttBody.getBody()));
-      subscribe('fse2021/0461/quarto/+');
+
+      publishMessage(`fse2021/0461/dispositivos/${device.esp_id}`, JSON.stringify(mqttBody.getBody()));
+      closeConfig();
     }
   
     return (
@@ -74,11 +113,29 @@ export default function Page() {
           }
           {
             availableDevices.map(device => (
-              <Button style={{ width: "100%", marginBottom: 20 }}>
+              <Button style={{ width: "100%", marginBottom: 20 }} onClick={() => handleDeviceButton(device.esp_id)}>
                 {device.esp_id}
               </Button>
             ))
           }
+        </Modal>
+        <Modal show={configDeviceModal} modalClose={() => closeConfig()}>
+          <div className="config-modal">
+            <h2>Novo dispositivo</h2>
+            <Input placeholder="Nome da entrada" value={inputName} setValue={setInputName} />
+            <Checkbox label="Aciona alarme?" isSelected={startsAlarm} setSelected={() => setStartsAlarm(!startsAlarm)} />
+            <Input placeholder="Nome da saída" value={outputName} setValue={setOutputName} />
+            <Checkbox label="É dimerizável?" isSelected={isDimmable} setSelected={() => setIsDimmable(!isDimmable)} />
+            <Select options={places} value={selectedPlace} setValue={setSelectedPlace} />
+            <Button isSelected style={{marginTop: 24}} onClick={configDevice} >
+              Salvar dispositivo
+            </Button>
+            {
+              error.length ? (
+                <span className="error-msg">{error}</span>
+              ) : null
+            }
+          </div>
         </Modal>
         <Sidenav/>
         <div className="use-section">

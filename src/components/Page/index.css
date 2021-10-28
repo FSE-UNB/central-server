@@ -23,3 +23,16 @@
     justify-content: space-between;
     margin-bottom: 10px;
 }
+
+.config-modal {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 20px;
+    width: 260px;
+}
+
+.error-msg {
+    color: red;
+    font-size: 14px;
+    font-weight: bold;
+}
