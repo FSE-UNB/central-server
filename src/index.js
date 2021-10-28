@@ -1,7 +1,7 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
 import './index.css';
-import App from './App';
+import Routes from './Routes';
 import reportWebVitals from './reportWebVitals';
 import MqttContextProvider from './context/mqttContext'
 import StorageContextProvider from './context/storageContext'
@@ -10,7 +10,7 @@ ReactDOM.render(
   <React.StrictMode>
     <StorageContextProvider>
       <MqttContextProvider>
-        <App />
+        <Routes />
       </MqttContextProvider>
     </StorageContextProvider>
   </React.StrictMode>,

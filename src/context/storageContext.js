@@ -65,7 +65,7 @@ export default function StorageContextProvider(props) {
     }
 
     return (
-        <StorageContext.Provider value={{ getDevices, addDevice, updateDevice, updateDeviceTime, removeDevice }}>
+        <StorageContext.Provider value={{ devices, getDevices, addDevice, updateDevice, updateDeviceTime, removeDevice }}>
             {props.children}
         </StorageContext.Provider>
     )

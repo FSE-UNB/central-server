@@ -1,0 +1,22 @@
+[
+    {
+        "name": "Quarto",
+        "code": "quarto"
+    },
+    {
+        "name": "Sala",
+        "code": "sala"
+    },
+    {
+        "name": "Cozinha",
+        "code": "cozinha"
+    },
+    {
+        "name": "Banheiro",
+        "code": "banheiro"
+    },
+    {
+        "name": "Escritório",
+        "code": "escritorio"
+    }
+]
