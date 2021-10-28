@@ -5,6 +5,7 @@ import { StorageContext } from '../../context/storageContext';
 import MqttBody from '../../models/mqttBody';
 import Device from '../../models/device';
 import Sidenav from '../Sidenav';
+import Modal from '../Modal';
 import Box from '../Box';
 import './index.css';
 import Button from '../Button';
@@ -12,7 +13,9 @@ import Button from '../Button';
 export default function Page() {
     const {publishMessage, subscribe} = useContext(MqttContext);
     const [alarmState, setAlarmState] = useState(false);
-    const {getDevices, updateDevice, devices} = useContext(StorageContext);
+    const [newDevices, setNewDevices] = useState(false);
+    const {getDevices, updateDevice} = useContext(StorageContext);
+    const [availableDevices, setAvailableDevices] = useState([]);
     const location = useLocation();
   
     useEffect(() => {
@@ -24,6 +27,12 @@ export default function Page() {
         const loc = location.pathname.substring(1);
         subscribe(`fse2021/0461/${loc}/+`);
     }, [])
+
+    useEffect(() => {
+      const devices = getDevices();
+      const available = devices.filter(device => !device.place);
+      setAvailableDevices(available);
+    }, [newDevices])
 
     function handleAlarmButton() {
       localStorage.setItem('alarmState', !alarmState);
@@ -56,6 +65,21 @@ export default function Page() {
   
     return (
       <div className="page">
+        <Modal show={newDevices} modalClose={() => setNewDevices(false)}>
+          <h2>Dispositivos disponíveis</h2>
+          {
+            !availableDevices.length && (
+              <p>Nenhum dispositivo está disponível para ser conectado</p>
+            )
+          }
+          {
+            availableDevices.map(device => (
+              <Button style={{ width: "100%", marginBottom: 20 }}>
+                {device.esp_id}
+              </Button>
+            ))
+          }
+        </Modal>
         <Sidenav/>
         <div className="use-section">
           <div className="buttons-section">
@@ -66,8 +90,8 @@ export default function Page() {
                 'Acionar sistema de alarme'
               }
             </Button>
-            <Button>
-              Novo dispositivo
+            <Button onClick={() => setNewDevices(true)}>
+              Adicionar dispositivo
             </Button>
           </div>
           <Box style={{height: "100%"}}>

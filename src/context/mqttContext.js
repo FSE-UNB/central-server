@@ -36,13 +36,11 @@ export default function MqttContextProvider(props) {
             if (splitTopic[2] === 'dispositivos') {
                 const device = new Device(splitTopic[3]);
                 addDevice(device.getBody());
-                console.log(device);
             } else {
                 const parsedMessage = JSON.parse(message.toString());
                 const espInfo = new EspInfo(parsedMessage.esp_id, parsedMessage.value, splitTopic[3]);
                 
                 updateDeviceTime(espInfo.esp_id);
-                console.log(espInfo.getBody())
             }
         });
 
