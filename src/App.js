@@ -4,6 +4,7 @@ import { StorageContext } from './context/storageContext';
 import logo from './logo.svg';
 import MqttBody from './models/mqttBody';
 import Device from './models/device';
+import Button from './components/Button'
 import './App.css';
 
 function App() {
@@ -59,10 +60,10 @@ function App() {
         >
           Learn React
         </a>
-        <button onClick={() => config()} >config</button>
-        <button onClick={() => publishMessage('fse2021/0461/dispositivos/' + getDevices()[0].esp_id, JSON.stringify({ type: 'output', value: 1.0 }))} >ligar led</button>
-        <button onClick={() => publishMessage('fse2021/0461/dispositivos/'  + getDevices()[0].esp_id, JSON.stringify({ type: 'output', value: 0.5 }))} >ligar meio led</button>
-        <button onClick={() => publishMessage('fse2021/0461/dispositivos/'  + getDevices()[0].esp_id, JSON.stringify({ type: 'output', value: 0.0 }))} >desligar led</button>
+        <Button isSelected onClick={() => config()} >config</Button>
+        <Button onClick={() => publishMessage('fse2021/0461/dispositivos/' + getDevices()[0].esp_id, JSON.stringify({ type: 'output', value: 1.0 }))} >ligar led</Button>
+        <Button onClick={() => publishMessage('fse2021/0461/dispositivos/'  + getDevices()[0].esp_id, JSON.stringify({ type: 'output', value: 0.5 }))} >ligar meio led</Button>
+        <Button onClick={() => publishMessage('fse2021/0461/dispositivos/'  + getDevices()[0].esp_id, JSON.stringify({ type: 'output', value: 0.0 }))} >desligar led</Button>
       </header>
     </div>
   );
