@@ -1,4 +1,4 @@
-import React, {createContext, useEffect, useContext} from 'react'
+import React, {createContext, useEffect, useContext, useState} from 'react'
 import mqtt from 'mqtt'
 import MqttBody from '../models/mqttBody';
 import Device from '../models/device';
@@ -10,7 +10,7 @@ export const MqttContext = createContext();
 
 export default function MqttContextProvider(props) {
 
-    const { getDevices, addDevice, updateDeviceTime, removeDevice } = useContext(StorageContext);
+    const { getDevices, addDevice, updateDeviceTime, removeDevice, updateDeviceTemp, updateDeviceHumidity, updateDeviceState } = useContext(StorageContext);
     let client= mqtt.connect('mqtt://broker.hivemq.com:8000/mqtt');
 
     function publishMessage(topic, content) {
@@ -40,11 +40,18 @@ export default function MqttContextProvider(props) {
                 const parsedMessage = JSON.parse(message.toString());
                 const espInfo = new EspInfo(parsedMessage.esp_id, parsedMessage.value, splitTopic[3]);
                 
+                if (espInfo.type === "umidade") {
+                    updateDeviceHumidity(espInfo.esp_id, espInfo.value);
+                } else if (espInfo.type === "temperatura") {
+                    updateDeviceTemp(espInfo.esp_id, espInfo.value);
+                } else if (espInfo.type === "estado") {
+                    updateDeviceState(espInfo.esp_id, espInfo.value);
+                }
                 updateDeviceTime(espInfo.esp_id);
             }
         });
 
-        setInterval(() => {
+        const interval = setInterval(() => {
             let devices = getDevices();
             devices = devices.filter(device => device.place.length);
 
@@ -52,9 +59,6 @@ export default function MqttContextProvider(props) {
                 const now = new Date();
 
                 const timeDifference = now - new Date(device.last_message);
-                console.log(now)
-                console.log(new Date(device.last_message))
-                console.log(device.esp_id + ': time diff is ' + timeDifference);
 
                 if (timeDifference >= 20000) {
                     console.log('deve desconectar device ' + device.esp_id);
@@ -66,6 +70,10 @@ export default function MqttContextProvider(props) {
                 }
             })
         }, 10000)
+
+        return () => {
+            clearInterval(interval);
+        }
 
     }, [])
 

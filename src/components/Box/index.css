@@ -1,9 +1,13 @@
 .box {
     background-color: white;
-    padding: 16px;
     border-radius: 16px;
     border: 3px solid black;
     display: inline-block;
     width: 100%;
     box-sizing: border-box;
+    transition: all 0.3s ease;
+}
+
+.lift-up:hover {
+    transform: translateY(-6px);
 }

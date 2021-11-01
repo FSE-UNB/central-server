@@ -13,6 +13,7 @@ import Checkbox from '../Checkbox';
 import places from '../../config/places.json';
 import './index.css';
 import Button from '../Button';
+import DeviceCard from '../DeviceCard';
 
 export default function Page() {
     const {publishMessage, subscribe} = useContext(MqttContext);
@@ -31,6 +32,9 @@ export default function Page() {
     const [selectedPlace, setSelectedPlace] = useState(places[0].code);
 
     const [error, setError] = useState("");
+
+    const [configedDevices, setConfigedDevices] = useState([]);
+    const [stateChange, setStateChange] = useState(false);
   
     useEffect(() => {
         let tmp = localStorage.getItem('alarmState');
@@ -40,6 +44,18 @@ export default function Page() {
 
         const loc = location.pathname.substring(1);
         subscribe(`fse2021/0461/${loc}/+`);
+
+        const interval = setInterval(() => {
+          const devices = getDevices();
+          const loc = location.pathname.substring(1);
+          const configDevices = devices.filter(device => device.place === loc);
+          console.log(configDevices)
+          setConfigedDevices(configDevices);
+        }, 1000);
+
+        return () => {
+          clearInterval(interval);
+        }
     }, [])
 
     useEffect(() => {
@@ -49,6 +65,13 @@ export default function Page() {
         setAvailableDevices(available);
       }
     }, [newDevices])
+
+    useEffect(() => {
+      const devices = getDevices();
+      const loc = location.pathname.substring(1);
+      const configDevices = devices.filter(device => device.place === loc);
+      setConfigedDevices(configDevices);
+    }, [stateChange])
 
     function handleAlarmButton() {
       localStorage.setItem('alarmState', !alarmState);
@@ -100,6 +123,7 @@ export default function Page() {
 
       publishMessage(`fse2021/0461/dispositivos/${device.esp_id}`, JSON.stringify(mqttBody.getBody()));
       closeConfig();
+      setStateChange();
     }
   
     return (
@@ -113,7 +137,7 @@ export default function Page() {
           }
           {
             availableDevices.map(device => (
-              <Button style={{ width: "100%", marginBottom: 20 }} onClick={() => handleDeviceButton(device.esp_id)}>
+              <Button key={device.esp_id} style={{ width: "100%", marginBottom: 20 }} onClick={() => handleDeviceButton(device.esp_id)}>
                 {device.esp_id}
               </Button>
             ))
@@ -153,18 +177,14 @@ export default function Page() {
           </div>
           <Box style={{height: "100%"}}>
             <div className="devices-section">
-
+              {
+                configedDevices.map(device => (
+                  <DeviceCard key={device.esp_ip} device={device} />
+                ))
+              }
             </div>
           </Box>
         </div>
-          {
-            /*
-            <Button isSelected onClick={() => config()} >config</Button>
-            <Button onClick={() => publishMessage('fse2021/0461/dispositivos/' + getDevices()[0].esp_id, JSON.stringify({ type: 'output', value: 1.0 }))} >ligar led</Button>
-            <Button onClick={() => publishMessage('fse2021/0461/dispositivos/'  + getDevices()[0].esp_id, JSON.stringify({ type: 'output', value: 0.5 }))} >ligar meio led</Button>
-            <Button onClick={() => publishMessage('fse2021/0461/dispositivos/'  + getDevices()[0].esp_id, JSON.stringify({ type: 'output', value: 0.0 }))} >desligar led</Button>
-            */
-          }
       </div>
     );
 }

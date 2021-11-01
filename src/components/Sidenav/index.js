@@ -20,11 +20,11 @@ export default function Sidenav() {
     }
 
     return (
-        <Box style={{maxWidth: 240}}>
+        <Box style={{maxWidth: 240, padding: 16}}>
             <nav className="sidenav">
                 {
                     places.map(place => (
-                        <Button onClick={() => goTo(place.code)} isSelected={checkButton(place.code)}>{place.name}</Button>
+                        <Button key={place.code} onClick={() => goTo(place.code)} isSelected={checkButton(place.code)}>{place.name}</Button>
                     ))
                 }
             </nav>

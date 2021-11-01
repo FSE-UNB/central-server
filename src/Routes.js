@@ -8,7 +8,7 @@ export default function Routes() {
             <Switch>
                 {
                     places.map(place => (
-                        <Route component={Page} path={`/${place.code}`} exact/>
+                        <Route key={place.code} component={Page} path={`/${place.code}`} exact/>
                     ))
                 }
                 <Route>

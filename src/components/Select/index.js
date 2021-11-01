@@ -6,7 +6,7 @@ export default function Select({options, value, setValue}) {
         <select className="app-select" value={value} onChange={({target}) => setValue(target.value)} >
             {
                 options.map(option => (
-                    <option value={option.code} >{option.name}</option>
+                    <option key={option.code} value={option.code} >{option.name}</option>
                 ))
             }
         </select>
