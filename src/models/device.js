@@ -11,6 +11,8 @@ export default class Device {
         this.temp = -1;
         this.humidity = -1;
         this.state = false;
+
+        this.value = 0;
     }
 
     updateDevice({ place, input_name, has_alarm, output_name, is_dimmable }) {
@@ -38,6 +40,10 @@ export default class Device {
         this.state = !this.state;
     }
 
+    updateValue(value) {
+        this.value = value;
+    }
+
     getBody() {
         return {
             esp_id: this.esp_id,
@@ -49,7 +55,8 @@ export default class Device {
             last_message: this.last_message,
             temp: this.temp,
             humidity: this.humidity,
-            state: this.state
+            state: this.state,
+            value: this.value
         }
     }
 }

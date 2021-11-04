@@ -1,0 +1,32 @@
+.app-slider {
+    width: 100%;
+    background-color: black;
+    outline: none;
+    -webkit-appearance: none;
+    border-radius: 20px;
+    height: 10px;
+}
+
+.app-slider::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 20px;
+    height: 20px;
+    background-color: black;
+    cursor: pointer;
+    border-radius: 20px;
+}
+
+.slider-label {
+    display: flex;
+    justify-content: space-between;
+}
+
+.slider-label label {
+    font-weight: bold;
+    font-size: 14px;
+}
+
+.slider-area {
+    width: 100%;
+}

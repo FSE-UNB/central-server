@@ -3,9 +3,9 @@ import './index.css';
 import Box from '../Box';
 import alarmIcon from '../../assets/icons/alarm.svg'
 
-export default function DeviceCard({ device }) {
+export default function DeviceCard({ device, onClick }) {
     return (
-        <Box style={{cursor: 'pointer', padding: 16}} className="lift-up">
+        <Box onClick={onClick} style={{cursor: 'pointer', padding: 16}} className="lift-up">
             <p className="default-text">
                 {device.output_name}
             </p>

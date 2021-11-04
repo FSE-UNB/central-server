@@ -13,8 +13,10 @@ export default function StorageContextProvider(props) {
     }, [])
 
     function addDevice(device) {
+        console.log(device)
         let devices = getDevices();
-        const foundIndex = devices.findIndex(devc => devc.esp_id === device.id);
+        const foundIndex = devices.findIndex(devc => devc.esp_id === device.esp_id);
+        console.log(foundIndex)
 
         if (foundIndex >= 0) {
             updateDevice({
@@ -47,6 +49,18 @@ export default function StorageContextProvider(props) {
         if (deviceIndex >= 0) {
             const device = Object.assign(new Device(), devices[deviceIndex]);
             device.updateDeviceTime();
+            devices[deviceIndex] = device.getBody();
+            localStorage.setItem('devices', JSON.stringify(devices));
+        }
+    }
+
+    function updateDeviceValue(esp_id, value) {
+        let devices = getDevices();
+        const deviceIndex = devices.findIndex((device) => device.esp_id === esp_id);
+
+        if (deviceIndex >= 0) {
+            const device = Object.assign(new Device(), devices[deviceIndex]);
+            device.updateValue(value);
             devices[deviceIndex] = device.getBody();
             localStorage.setItem('devices', JSON.stringify(devices));
         }
@@ -120,7 +134,7 @@ export default function StorageContextProvider(props) {
     }
 
     return (
-        <StorageContext.Provider value={{ findDevice, getDevices, addDevice, updateDevice, updateDeviceTime, removeDevice, updateDeviceTemp, updateDeviceHumidity, updateDeviceState }}>
+        <StorageContext.Provider value={{ findDevice, getDevices, addDevice, updateDevice, updateDeviceTime, removeDevice, updateDeviceTemp, updateDeviceHumidity, updateDeviceState, updateDeviceValue }}>
             {props.children}
         </StorageContext.Provider>
     )

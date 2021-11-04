@@ -18,8 +18,6 @@ export default function MqttContextProvider(props) {
     }
 
     function subscribe(topic) {
-        console.log('passa aqui')
-        console.log(topic)
         client.subscribe(topic);
     }
 
@@ -60,7 +58,7 @@ export default function MqttContextProvider(props) {
 
                 const timeDifference = now - new Date(device.last_message);
 
-                if (timeDifference >= 20000) {
+                if (timeDifference >= 50000) {
                     console.log('deve desconectar device ' + device.esp_id);
                     const resetMsg = {
                         type: 'unconfig'

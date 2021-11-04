@@ -14,13 +14,15 @@ import places from '../../config/places.json';
 import './index.css';
 import Button from '../Button';
 import DeviceCard from '../DeviceCard';
+import Slider from '../Slider';
 
 export default function Page() {
     const {publishMessage, subscribe} = useContext(MqttContext);
+    const {getDevices, updateDevice, findDevice, updateDeviceValue} = useContext(StorageContext);
+ 
     const [alarmState, setAlarmState] = useState(false);
     const [newDevices, setNewDevices] = useState(false);
     const [configDeviceModal, setconfigDeviceModal] = useState(false);
-    const {getDevices, updateDevice, findDevice} = useContext(StorageContext);
     const [availableDevices, setAvailableDevices] = useState([]);
     const location = useLocation();
 
@@ -35,6 +37,10 @@ export default function Page() {
 
     const [configedDevices, setConfigedDevices] = useState([]);
     const [stateChange, setStateChange] = useState(false);
+
+    const [deviceModal, setDeviceModal] = useState(false);
+    const [deviceValueSlider, setdeviceValueSlider] = useState(0);
+    const [deviceValueButton, setdeviceValueButton] = useState(0);
   
     useEffect(() => {
         let tmp = localStorage.getItem('alarmState');
@@ -125,6 +131,38 @@ export default function Page() {
       closeConfig();
       setStateChange();
     }
+
+    function selectDevice(device) {
+      const foundDevice = findDevice(device.esp_id);
+      setdeviceValueSlider(foundDevice.value * 100);
+      setdeviceValueButton(foundDevice.value);
+      setSelectedDevice(device);
+      setDeviceModal(true);
+    }
+
+    function closeDeviceModal() {
+      setSelectedDevice(null);
+      setDeviceModal(false);
+    }
+
+    function updateSlider() {
+      const value = deviceValueSlider / 100;
+      const mqttBody = new MqttBody('output', undefined, value);
+
+      updateDeviceValue(selectedDevice.esp_id, value);
+
+      publishMessage(`fse2021/0461/dispositivos/${selectedDevice.esp_id}`, JSON.stringify(mqttBody.getBody()));
+    }
+
+    function updateButton() {
+      const value = !deviceValueButton;
+      setdeviceValueButton(value);
+      const mqttBody = new MqttBody('output', undefined, value ? 1 : 0);
+
+      updateDeviceValue(selectedDevice.esp_id, value ? 1 : 0);
+
+      publishMessage(`fse2021/0461/dispositivos/${selectedDevice.esp_id}`, JSON.stringify(mqttBody.getBody()));
+    }
   
     return (
       <div className="page">
@@ -161,6 +199,25 @@ export default function Page() {
             }
           </div>
         </Modal>
+        <Modal show={deviceModal} modalClose={() => closeDeviceModal()}>
+          {
+            selectDevice ? (
+              <div style={{minWidth: 240}}>
+                <h2>{selectedDevice?.output_name}</h2>
+                {
+                  selectedDevice?.is_dimmable ? (
+                    <>
+                      <Slider value={deviceValueSlider} onChange={setdeviceValueSlider} />
+                      <Button style={{width: '100%', marginTop: 24}} onClick={updateSlider} isSelected >Atualizar</Button>
+                    </>
+                  ) : (
+                    <Button style={{width: '100%'}} onClick={updateButton} isSelected={deviceValueButton}>{deviceValueButton ? 'Desligar' : 'Ligar'}</Button>
+                  )
+                }
+              </div>
+            ) : null
+          }
+        </Modal>
         <Sidenav/>
         <div className="use-section">
           <div className="buttons-section">
@@ -179,7 +236,7 @@ export default function Page() {
             <div className="devices-section">
               {
                 configedDevices.map(device => (
-                  <DeviceCard key={device.esp_ip} device={device} />
+                  <DeviceCard key={device.esp_ip} device={device} onClick={() => selectDevice(device)} />
                 ))
               }
             </div>
