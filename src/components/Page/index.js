@@ -236,7 +236,7 @@ export default function Page() {
             <div className="devices-section">
               {
                 configedDevices.map(device => (
-                  <DeviceCard key={device.esp_ip} device={device} onClick={() => selectDevice(device)} />
+                  <DeviceCard key={device.esp_id} device={device} onClick={() => selectDevice(device)} />
                 ))
               }
             </div>

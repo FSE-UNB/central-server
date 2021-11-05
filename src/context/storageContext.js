@@ -19,7 +19,9 @@ export default function StorageContextProvider(props) {
         console.log(foundIndex)
 
         if (foundIndex >= 0) {
+            console.log('ta entrando aqui po')
             updateDevice({
+                esp_id: devices[foundIndex].esp_id,
                 place: "",
                 input_name: "",
                 has_alarm: false,
@@ -37,6 +39,7 @@ export default function StorageContextProvider(props) {
         const deviceIndex = devices.findIndex((device) => device.esp_id === updatedDevice.esp_id);
 
         if (deviceIndex >= 0) {
+            console.log('entrou aqui tmb')
             devices[deviceIndex] = updatedDevice;
             localStorage.setItem('devices', JSON.stringify(devices));
         }

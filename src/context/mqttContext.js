@@ -1,8 +1,8 @@
-import React, {createContext, useEffect, useContext, useState} from 'react'
+import React, {createContext, useEffect, useContext} from 'react'
 import mqtt from 'mqtt'
-import MqttBody from '../models/mqttBody';
 import Device from '../models/device';
 import EspInfo from '../models/espInfo';
+import alarmAudio from '../assets/sounds/alarm.mp3';
 
 import { StorageContext } from './storageContext';
 
@@ -10,7 +10,7 @@ export const MqttContext = createContext();
 
 export default function MqttContextProvider(props) {
 
-    const { getDevices, addDevice, updateDeviceTime, removeDevice, updateDeviceTemp, updateDeviceHumidity, updateDeviceState } = useContext(StorageContext);
+    const { getDevices, addDevice, updateDeviceTime, removeDevice, updateDeviceTemp, updateDeviceHumidity, updateDeviceState, findDevice } = useContext(StorageContext);
     let client= mqtt.connect('mqtt://broker.hivemq.com:8000/mqtt');
 
     function publishMessage(topic, content) {
@@ -27,7 +27,7 @@ export default function MqttContextProvider(props) {
 
         client.on('message', (topic, message) => {
             console.log(topic);
-            if (message.includes('config') || message.includes('output')) return;
+            if (message.toString().includes('config') || message.includes('output')) return;
 
             const splitTopic = topic.split('/');
 
@@ -43,6 +43,14 @@ export default function MqttContextProvider(props) {
                 } else if (espInfo.type === "temperatura") {
                     updateDeviceTemp(espInfo.esp_id, espInfo.value);
                 } else if (espInfo.type === "estado") {
+                    const device = findDevice(espInfo.esp_id);
+                    const active_alarm = localStorage.getItem('alarmState');
+                    console.log(active_alarm)
+                    console.log(device.has_alarm && active_alarm)
+                    if (device.has_alarm && active_alarm === 'true') {
+                        const audio = new Audio(alarmAudio);
+                        audio.play();
+                    }
                     updateDeviceState(espInfo.esp_id, espInfo.value);
                 }
                 updateDeviceTime(espInfo.esp_id);
