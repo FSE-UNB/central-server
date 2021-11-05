@@ -57,8 +57,12 @@ export default function MqttContextProvider(props) {
                     console.log(active_alarm)
                     console.log(device.has_alarm && active_alarm)
                     if (device.has_alarm && active_alarm === 'true') {
-                        const audio = new Audio(alarmAudio);
-                        audio.play();
+                        try {
+                            const audio = new Audio(alarmAudio);
+                            audio.play();
+                        } catch(e) {
+                            console.log(e);
+                        }
                     }
                     updateDeviceState(espInfo.esp_id, espInfo.value);
                 }
