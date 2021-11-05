@@ -15,10 +15,12 @@ import './index.css';
 import Button from '../Button';
 import DeviceCard from '../DeviceCard';
 import Slider from '../Slider';
+import { LogContext } from '../../context/logContext';
 
 export default function Page() {
     const {publishMessage, subscribe} = useContext(MqttContext);
     const {getDevices, updateDevice, findDevice, updateDeviceValue} = useContext(StorageContext);
+    const {downloadLogs} = useContext(LogContext);
  
     const [alarmState, setAlarmState] = useState(false);
     const [newDevices, setNewDevices] = useState(false);
@@ -228,9 +230,14 @@ export default function Page() {
                 'Acionar sistema de alarme'
               }
             </Button>
-            <Button onClick={() => setNewDevices(true)}>
-              Adicionar dispositivo
-            </Button>
+            <div>
+              <Button style={{marginRight: 12}} onClick={() => downloadLogs()}>
+                Baixar logs
+              </Button>
+              <Button onClick={() => setNewDevices(true)}>
+                Adicionar dispositivo
+              </Button>
+            </div>
           </div>
           <Box style={{height: "100%"}}>
             <div className="devices-section">

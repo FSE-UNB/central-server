@@ -5,19 +5,25 @@ import EspInfo from '../models/espInfo';
 import alarmAudio from '../assets/sounds/alarm.mp3';
 
 import { StorageContext } from './storageContext';
+import { LogContext } from './logContext';
 
 export const MqttContext = createContext();
 
 export default function MqttContextProvider(props) {
 
     const { getDevices, addDevice, updateDeviceTime, removeDevice, updateDeviceTemp, updateDeviceHumidity, updateDeviceState, findDevice } = useContext(StorageContext);
+    const { addLog } = useContext(LogContext);
+
     let client= mqtt.connect('mqtt://broker.hivemq.com:8000/mqtt');
 
     function publishMessage(topic, content) {
+        console.log('aaaa')
+        addLog(`Publishing to topic ${topic}`);
         client.publish(topic, content);
     }
 
     function subscribe(topic) {
+        addLog(`Subscribing to topic ${topic}`)
         client.subscribe(topic);
     }
 
@@ -34,7 +40,10 @@ export default function MqttContextProvider(props) {
             if (splitTopic[2] === 'dispositivos') {
                 const device = new Device(splitTopic[3]);
                 addDevice(device.getBody());
+                addLog(`Configuring device ${splitTopic[3]}`)
             } else {
+                addLog(`Getting message from topic ${topic}`)
+                
                 const parsedMessage = JSON.parse(message.toString());
                 const espInfo = new EspInfo(parsedMessage.esp_id, parsedMessage.value, splitTopic[3]);
                 
@@ -73,6 +82,7 @@ export default function MqttContextProvider(props) {
                     }
                     publishMessage('fse2021/0461/dispositivos/' + device.esp_id, JSON.stringify(resetMsg));
                     removeDevice(device.esp_id);
+                    addLog(`Removing device ${device.esp_id}`)
                 }
             })
         }, 10000)

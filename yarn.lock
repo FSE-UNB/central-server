@@ -4221,6 +4221,11 @@ dotenv@8.2.0:
   resolved "https://registry.yarnpkg.com/dotenv/-/dotenv-8.2.0.tgz#97e619259ada750eea3e4ea3e26bceea5424b16a"
   integrity sha512-8sJ78ElpbDJBHNeBzUbUVLsqKdccaa/BXF1uPTw3GrvQTBgrQrtObr2mUrE38vzYd8cEv+m/JBfDLioYcfXoaw==
 
+download-csv@^1.1.1:
+  version "1.1.1"
+  resolved "https://registry.yarnpkg.com/download-csv/-/download-csv-1.1.1.tgz#c0b076f48344f1be47af4005cf32d53283eb88eb"
+  integrity sha1-wLB29INE8b5Hr0AFzzLVMoPriOs=
+
 duplexer@^0.1.1:
   version "0.1.2"
   resolved "https://registry.yarnpkg.com/duplexer/-/duplexer-0.1.2.tgz#3abe43aef3835f8ae077d136ddce0f276b0400e6"

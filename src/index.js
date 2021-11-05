@@ -3,16 +3,19 @@ import ReactDOM from 'react-dom';
 import './index.css';
 import Routes from './Routes';
 import reportWebVitals from './reportWebVitals';
-import MqttContextProvider from './context/mqttContext'
-import StorageContextProvider from './context/storageContext'
+import MqttContextProvider from './context/mqttContext';
+import StorageContextProvider from './context/storageContext';
+import LogContextProvider from './context/logContext';
 
 ReactDOM.render(
   <React.StrictMode>
-    <StorageContextProvider>
-      <MqttContextProvider>
-        <Routes />
-      </MqttContextProvider>
-    </StorageContextProvider>
+    <LogContextProvider>
+      <StorageContextProvider>
+        <MqttContextProvider>
+          <Routes />
+        </MqttContextProvider>
+      </StorageContextProvider>
+    </LogContextProvider>
   </React.StrictMode>,
   document.getElementById('root')
 );
