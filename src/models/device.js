@@ -1,5 +1,5 @@
 export default class Device {
-    constructor(esp_id) {
+    constructor(esp_id, low_power) {
         this.esp_id = esp_id;
         this.place = "";
         this.input_name = "";
@@ -7,6 +7,7 @@ export default class Device {
         this.output_name = "";
         this.is_dimmable = false;
         this.last_message = new Date();
+        this.low_power = low_power;
 
         this.temp = -1;
         this.humidity = -1;
@@ -53,6 +54,7 @@ export default class Device {
             output_name: this.output_name,
             is_dimmable: this.is_dimmable,
             last_message: this.last_message,
+            low_power: this.low_power,
             temp: this.temp,
             humidity: this.humidity,
             state: this.state,

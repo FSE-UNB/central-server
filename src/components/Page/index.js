@@ -86,10 +86,10 @@ export default function Page() {
       setAlarmState(!alarmState);
     }
 
-    function handleDeviceButton(esp_id) {
+    function handleDeviceButton(device) {
       setNewDevices(false);
       setconfigDeviceModal(true);
-      setSelectedDevice(esp_id);
+      setSelectedDevice(device);
     }
 
     function closeConfig() {
@@ -104,13 +104,13 @@ export default function Page() {
     }
 
     function configDevice() {
-      if (!inputName.length || !outputName.length) {
+      if (!inputName.length || (!outputName.length && !selectedDevice.low_power)) {
         setError("Preencha todos os campos!");
         return;
       }
       const mqttBody = new MqttBody('config', selectedPlace, undefined);
 
-      let device = findDevice(selectedDevice);
+      let device = findDevice(selectedDevice.esp_id);
 
       if (device < 0) {
         setError("Erro ao configurar dispositivo!");
@@ -177,7 +177,7 @@ export default function Page() {
           }
           {
             availableDevices.map(device => (
-              <Button key={device.esp_id} style={{ width: "100%", marginBottom: 20 }} onClick={() => handleDeviceButton(device.esp_id)}>
+              <Button key={device.esp_id} style={{ width: "100%", marginBottom: 20 }} onClick={() => handleDeviceButton(device)}>
                 {device.esp_id}
               </Button>
             ))
@@ -187,9 +187,9 @@ export default function Page() {
           <div className="config-modal">
             <h2>Novo dispositivo</h2>
             <Input placeholder="Nome da entrada" value={inputName} setValue={setInputName} />
-            <Checkbox label="Aciona alarme?" isSelected={startsAlarm} setSelected={() => setStartsAlarm(!startsAlarm)} />
-            <Input placeholder="Nome da saída" value={outputName} setValue={setOutputName} />
-            <Checkbox label="É dimerizável?" isSelected={isDimmable} setSelected={() => setIsDimmable(!isDimmable)} />
+            <Checkbox  label="Aciona alarme?" isSelected={startsAlarm} setSelected={() => setStartsAlarm(!startsAlarm)} />
+            { selectedDevice?.low_power ? null : <Input placeholder="Nome da saída" value={outputName} setValue={setOutputName} /> }
+            { selectedDevice?.low_power ? null : <Checkbox label="É dimerizável?" isSelected={isDimmable} setSelected={() => setIsDimmable(!isDimmable)} /> }
             <Select options={places} value={selectedPlace} setValue={setSelectedPlace} />
             <Button isSelected style={{marginTop: 24}} onClick={configDevice} >
               Salvar dispositivo
@@ -243,7 +243,9 @@ export default function Page() {
             <div className="devices-section">
               {
                 configedDevices.map(device => (
-                  <DeviceCard key={device.esp_id} device={device} onClick={() => selectDevice(device)} />
+                  device.low_power 
+                  ? <DeviceCard key={device.esp_id} device={device} />
+                  : <DeviceCard key={device.esp_id} device={device} onClick={() => selectDevice(device)} />
                 ))
               }
             </div>

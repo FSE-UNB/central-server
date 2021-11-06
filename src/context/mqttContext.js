@@ -38,9 +38,18 @@ export default function MqttContextProvider(props) {
             const splitTopic = topic.split('/');
 
             if (splitTopic[2] === 'dispositivos') {
-                const device = new Device(splitTopic[3]);
-                addDevice(device.getBody());
-                addLog(`Configuring device ${splitTopic[3]}`)
+                if (message.toString().includes('type')) {
+                    const parsedMessage = JSON.parse(message.toString());
+                    const espInfo = new EspInfo(splitTopic[3], 0, parsedMessage.type);
+
+                    updateDeviceTime(espInfo.esp_id);
+                    addLog(`Ping device ${espInfo.esp_id}`)
+                } else {
+                    const parsedMessage = JSON.parse(message.toString());
+                    const device = new Device(parsedMessage.esp_id, parsedMessage.low_power);
+                    addDevice(device.getBody());
+                    addLog(`Configuring device ${parsedMessage.esp_id} with Low Power ${parsedMessage.low_power}`)
+                }
             } else {
                 addLog(`Getting message from topic ${topic}`)
                 
