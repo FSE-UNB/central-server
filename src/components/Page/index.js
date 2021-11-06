@@ -19,8 +19,8 @@ import { LogContext } from '../../context/logContext';
 
 export default function Page() {
     const {publishMessage, subscribe} = useContext(MqttContext);
-    const {getDevices, updateDevice, findDevice, updateDeviceValue} = useContext(StorageContext);
-    const {downloadLogs} = useContext(LogContext);
+    const {getDevices, updateDevice, findDevice, updateDeviceValue, removeDevice} = useContext(StorageContext);
+    const {downloadLogs, addLog} = useContext(LogContext);
  
     const [alarmState, setAlarmState] = useState(false);
     const [newDevices, setNewDevices] = useState(false);
@@ -165,6 +165,16 @@ export default function Page() {
 
       publishMessage(`fse2021/0461/dispositivos/${selectedDevice.esp_id}`, JSON.stringify(mqttBody.getBody()));
     }
+
+    function resetDevice() {
+      const resetMsg = {
+        type: 'unconfig'
+      }
+      publishMessage('fse2021/0461/dispositivos/' + selectedDevice.esp_id, JSON.stringify(resetMsg));
+      removeDevice(selectedDevice.esp_id);
+      addLog(`Removing device ${selectedDevice.esp_id}`);
+      setDeviceModal(false);
+    }
   
     return (
       <div className="page">
@@ -205,17 +215,20 @@ export default function Page() {
           {
             selectDevice ? (
               <div style={{minWidth: 240}}>
-                <h2>{selectedDevice?.output_name}</h2>
+                <h2>{selectedDevice?.output_name ? selectedDevice?.output_name : selectedDevice?.input_name }</h2>
                 {
-                  selectedDevice?.is_dimmable ? (
-                    <>
-                      <Slider value={deviceValueSlider} onChange={setdeviceValueSlider} />
-                      <Button style={{width: '100%', marginTop: 24}} onClick={updateSlider} isSelected >Atualizar</Button>
-                    </>
-                  ) : (
-                    <Button style={{width: '100%'}} onClick={updateButton} isSelected={deviceValueButton}>{deviceValueButton ? 'Desligar' : 'Ligar'}</Button>
-                  )
+                  !selectedDevice?.low_power ?
+                    selectedDevice?.is_dimmable ? (
+                      <>
+                        <Slider value={deviceValueSlider} onChange={setdeviceValueSlider} />
+                        <Button style={{width: '100%', marginTop: 24}} onClick={updateSlider} isSelected >Atualizar</Button>
+                      </>
+                    ) : (
+                      <Button style={{width: '100%'}} onClick={updateButton} isSelected={deviceValueButton}>{deviceValueButton ? 'Desligar' : 'Ligar'}</Button>
+                    )
+                  : null
                 }
+                <Button style={{width: '100%', marginTop: 10}} onClick={resetDevice}>Desconfigurar</Button>
               </div>
             ) : null
           }
@@ -243,9 +256,7 @@ export default function Page() {
             <div className="devices-section">
               {
                 configedDevices.map(device => (
-                  device.low_power 
-                  ? <DeviceCard key={device.esp_id} device={device} />
-                  : <DeviceCard key={device.esp_id} device={device} onClick={() => selectDevice(device)} />
+                  <DeviceCard key={device.esp_id} device={device} onClick={() => selectDevice(device)} />
                 ))
               }
             </div>

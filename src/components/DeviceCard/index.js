@@ -21,6 +21,9 @@ export default function DeviceCard({ device, onClick }) {
                     ) : null
                 }
             </p>
+            <p className="default-text">
+                {device.esp_id}
+            </p>
             {
                 device.low_power ? (<p className="default-text">Modo Low Power</p>) : null
             }
